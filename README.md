@@ -65,7 +65,7 @@ class ThumbHelper extends \alkurn\thumbnail\ThumbnailImage
 
     protected static function errorHandler($error, $filename)
     {
-        if ($error instanceof \himiklab\thumbnail\FileNotFoundException) {
+        if ($error instanceof \alkurn\thumbnail\FileNotFoundException) {
             return \yii\helpers\Html::img('@web/images/notfound.png');
         } else {
             $filename = basename($filename);
