@@ -1,4 +1,4 @@
-Easy Thumbnail Image Helper for Yii2
+Thumbnail Image Helper for Yii2
 ========================
 
 Yii2 helper for creating and caching thumbnails on real time.
@@ -10,8 +10,9 @@ The preferred way to install this extension is through [composer](http://getcomp
 * Either run
 
 ```
-php composer.phar require "alkurn/yii2-thumbnail" "*"
+php composer.phar require --prefer-dist "alkurn/yii2-thumbnail" "*"
 ```
+ 
 or add
 
 ```json
@@ -25,9 +26,12 @@ to the require section of your application's `composer.json` file.
 ```php
 'components' => [
     'thumbnail' => [
-        'class' => 'alkurn\thumbnail\Thumbnail',
-        'cacheAlias' => 'assets/gallery_thumbnails',
-    ],
+                'class' => 'alkurn\thumbnail\Thumbnail',
+                'cacheAlias'    => Yii::getAlias('@cache/'),
+                'uploadsAlias'  => Yii::getAlias('@uploads/'),
+                'imageAlias'    => Yii::getAlias('@image/'),
+                'defaultImage'  => 'default.png',
+            ],
 ],
 ```
 
@@ -53,24 +57,4 @@ echo ThumbnailImage::thumbnailImg(
     ThumbnailImage::THUMBNAIL_OUTBOUND,
     ['alt' => $model->pictureName]
 );
-```
-
-For other functions please see the source code.
-
-If you want to handle errors that appear while converting to thumbnail by yourself, please make your own class and inherit it from ThumbnailImage. In your class replace only protected method errorHandler. For example
-
-```php
-class ThumbHelper extends \alkurn\thumbnail\ThumbnailImage
-{
-
-    protected static function errorHandler($error, $filename)
-    {
-        if ($error instanceof \alkurn\thumbnail\FileNotFoundException) {
-            return \yii\helpers\Html::img('@web/images/notfound.png');
-        } else {
-            $filename = basename($filename);
-            return \yii\helpers\Html::a($filename,"@web/files/$filename");
-        }
-    }
-} 
 ```
