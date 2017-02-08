@@ -21,6 +21,14 @@ or add
 
 to the require section of your application's `composer.json` file.
 
+* Add a new lines in `bootstrap` file of your application, for example:
+
+```
+Yii::setAlias('@uploads', dirname(dirname(__DIR__)) . '/uploads');
+Yii::setAlias('@cache', dirname(dirname(__DIR__)) . '/uploads/cache');
+Yii::setAlias('@image',   '/uploads/cache');
+```
+
 * Add a new component in `components` section of your application's configuration file (optional), for example:
 
 ```php
@@ -51,10 +59,10 @@ For example:
 use alkurn\thumbnail\ThumbnailImage;
 
 echo ThumbnailImage::thumbnailImg(
-    $model->pictureFile,
+    $model->image,
     50,
     50,
     ThumbnailImage::THUMBNAIL_OUTBOUND,
-    ['alt' => $model->pictureName]
+    ['alt' => $model->image]
 );
 ```
