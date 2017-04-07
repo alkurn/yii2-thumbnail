@@ -165,7 +165,9 @@ class ThumbnailImage
     protected static function errorHandler($error, $filename)
     {
         if ($error instanceof FileNotFoundException) {
-            return 'File doesn\'t exist';
+            //return 'File doesn\'t exist';
+            return  Html::img( 'uploads/default.png');
+
         } else {
             Yii::warning("{$error->getCode()}\n{$error->getMessage()}\n{$error->getFile()}");
             return 'Error ' . $error->getCode();
