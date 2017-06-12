@@ -84,12 +84,12 @@ class ThumbnailImage
         $thumbnailFileName = pathinfo ($filename, PATHINFO_FILENAME).'-'.$width.'x'.$height;
         $thumbnailFilePath = $cachePath   . DIRECTORY_SEPARATOR . pathinfo ($file, PATHINFO_DIRNAME);
         $thumbnailFile = $thumbnailFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName.'.'.$thumbnailFileExt;
+        $realFilePath = pathinfo ($file, PATHINFO_DIRNAME);
 
-        $realPath = pathinfo ($file, PATHINFO_DIRNAME);
-        if($realPath == '.' || $realPath == '..'){
+        if($realFilePath == '.' || $realFilePath == '..'){
             $file  = $thumbnailFileName.'.'.$thumbnailFileExt;
         }else{
-            $file  = pathinfo ($file, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . $thumbnailFileName.'.'.$thumbnailFileExt;
+            $file  = $realFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName.'.'.$thumbnailFileExt;
         }
 
         if (file_exists($thumbnailFile)) {
