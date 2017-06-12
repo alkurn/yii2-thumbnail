@@ -84,7 +84,14 @@ class ThumbnailImage
         $thumbnailFileName = pathinfo ($filename, PATHINFO_FILENAME).'-'.$width.'x'.$height;
         $thumbnailFilePath = $cachePath   . DIRECTORY_SEPARATOR . pathinfo ($file, PATHINFO_DIRNAME);
         $thumbnailFile = $thumbnailFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName.'.'.$thumbnailFileExt;
-        $file  = pathinfo ($file, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . $thumbnailFileName.'.'.$thumbnailFileExt;
+
+        $realPath = pathinfo ($file, PATHINFO_DIRNAME);
+        if($realPath == '.' || $realPath == '..'){
+            $file  = $thumbnailFileName.'.'.$thumbnailFileExt;
+        }else{
+            $file  = pathinfo ($file, PATHINFO_DIRNAME) . DIRECTORY_SEPARATOR . $thumbnailFileName.'.'.$thumbnailFileExt;
+        }
+
         if (file_exists($thumbnailFile)) {
             if (self::$cacheExpire !== 0 && (time() - filemtime($thumbnailFile)) > self::$cacheExpire){
                 unlink($thumbnailFile);
@@ -165,9 +172,7 @@ class ThumbnailImage
     protected static function errorHandler($error, $filename)
     {
         if ($error instanceof FileNotFoundException) {
-            //return 'File doesn\'t exist';
-            return  Html::img( 'uploads/default.png');
-
+            return 'File doesn\'t exist';
         } else {
             Yii::warning("{$error->getCode()}\n{$error->getMessage()}\n{$error->getFile()}");
             return 'Error ' . $error->getCode();
