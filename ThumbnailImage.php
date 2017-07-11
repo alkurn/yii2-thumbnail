@@ -86,11 +86,14 @@ class ThumbnailImage
         $thumbnailFile = $thumbnailFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName.'.'.$thumbnailFileExt;
         $realFilePath = pathinfo ($file, PATHINFO_DIRNAME);
 
+
         if($realFilePath == '.' || $realFilePath == '..'){
             $file  = $thumbnailFileName.'.'.$thumbnailFileExt;
         }else{
             $file  = $realFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName.'.'.$thumbnailFileExt;
         }
+
+        $file = self::$imageAlias . $file;
 
         if (file_exists($thumbnailFile)) {
             if (self::$cacheExpire !== 0 && (time() - filemtime($thumbnailFile)) > self::$cacheExpire){
@@ -144,7 +147,8 @@ class ThumbnailImage
         } catch (\Exception $e) {
             return static::errorHandler($e, $filename);
         }
-        return Html::img( self::$imageAlias . $thumbnailFileUrl, $options);
+
+        return Html::img( $thumbnailFileUrl, $options);
     }
 
     /**
