@@ -27,7 +27,7 @@ class ThumbnailImage
 
     /** @var string $cacheAlias path alias relative with @web where the cache files are kept */
     public static $cacheAlias = 'assets/thumbnails';
-    public static $storageAlias =  'assets/thumbnails';
+    public static $uploadsAlias =  'assets/thumbnails';
     public static $imageAlias =  'assets/thumbnails';
     public static $defaultImage =  'default.png';
 
@@ -73,7 +73,7 @@ class ThumbnailImage
         $cachePath = self::$cacheAlias;
         $file = empty($file) ? self::$defaultImage : $file;
 
-        $filename  = FileHelper::normalizePath(self::$storageAlias . $file );
+        $filename  = FileHelper::normalizePath(self::$uploadsAlias . $file );
 
         if ( !is_file($filename) ){
             throw new FileNotFoundException("File $file doesn't exist");
