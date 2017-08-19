@@ -76,7 +76,8 @@ class ThumbnailImage
         $filename  = FileHelper::normalizePath(self::$uploadsAlias . $file );
 
         if ( !is_file($filename) ){
-            throw new FileNotFoundException("File $file doesn't exist");
+            $filename  = FileHelper::normalizePath(self::$uploadsAlias . self::$defaultImage );
+            //throw new FileNotFoundException("File $file doesn't exist");
         }
 
 

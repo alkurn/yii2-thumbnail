@@ -33,5 +33,4 @@ class Thumbnail extends Object
         ThumbnailImage::$cacheExpire    = $this->cacheExpire;
         ThumbnailImage::$defaultImage   = $this->defaultImage;
     }
-
 }
