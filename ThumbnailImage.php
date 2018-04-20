@@ -27,9 +27,9 @@ class ThumbnailImage
 
     /** @var string $cacheAlias path alias relative with @web where the cache files are kept */
     public static $cacheAlias = 'assets/thumbnails';
-    public static $uploadsAlias =  'assets/thumbnails';
-    public static $imageAlias =  'assets/thumbnails';
-    public static $defaultImage =  'default.png';
+    public static $uploadsAlias = 'assets/thumbnails';
+    public static $imageAlias = 'assets/thumbnails';
+    public static $defaultImage = 'default.png';
 
     /** @var int $cacheExpire */
     public static $cacheExpire = 0;
@@ -73,31 +73,39 @@ class ThumbnailImage
         $cachePath = self::$cacheAlias;
         $file = empty($file) ? self::$defaultImage : $file;
 
-        $filename  = FileHelper::normalizePath(self::$uploadsAlias . $file );
+        $filename = FileHelper::normalizePath(self::$uploadsAlias . $file);
 
-        if ( !is_file($filename) ){
-            $filename  = FileHelper::normalizePath(self::$uploadsAlias . self::$defaultImage );
-            //throw new FileNotFoundException("File $file doesn't exist");
+        if (!is_file($filename)) {
+            $filename = FileHelper::normalizePath(self::$uploadsAlias . self::$defaultImage);
         }
 
+        [$_width, $_height] = getimagesize($filename);
+        if (empty($width) && empty($height)) {
+            $width = $_width;
+            $height = $_height;
+        } elseif (empty($width)) {
+            $width = ($height * ($_width / $_height));
+        } elseif (empty($height)) {
+            $height = $width / ($_width / $_height);
+        }
 
-        $thumbnailFileExt  = pathinfo ($filename, PATHINFO_EXTENSION);
-        $thumbnailFileName = pathinfo ($filename, PATHINFO_FILENAME).'-'.$width.'x'.$height;
-        $thumbnailFilePath = $cachePath   . DIRECTORY_SEPARATOR . pathinfo ($file, PATHINFO_DIRNAME);
-        $thumbnailFile = $thumbnailFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName.'.'.$thumbnailFileExt;
-        $realFilePath = pathinfo ($file, PATHINFO_DIRNAME);
+        $thumbnailFileExt = pathinfo($filename, PATHINFO_EXTENSION);
+        $thumbnailFileName = pathinfo($filename, PATHINFO_FILENAME) . '-' . $width . 'x' . $height;
+        $thumbnailFilePath = $cachePath . DIRECTORY_SEPARATOR . pathinfo($file, PATHINFO_DIRNAME);
+        $thumbnailFile = $thumbnailFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName . '.' . $thumbnailFileExt;
+        $realFilePath = pathinfo($file, PATHINFO_DIRNAME);
 
 
-        if($realFilePath == '.' || $realFilePath == '..'){
-            $file  = $thumbnailFileName.'.'.$thumbnailFileExt;
-        }else{
-            $file  = $realFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName.'.'.$thumbnailFileExt;
+        if ($realFilePath == '.' || $realFilePath == '..') {
+            $file = $thumbnailFileName . '.' . $thumbnailFileExt;
+        } else {
+            $file = $realFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName . '.' . $thumbnailFileExt;
         }
 
         $file = self::$imageAlias . $file;
 
         if (file_exists($thumbnailFile)) {
-            if (self::$cacheExpire !== 0 && (time() - filemtime($thumbnailFile)) > self::$cacheExpire){
+            if (self::$cacheExpire !== 0 && (time() - filemtime($thumbnailFile)) > self::$cacheExpire) {
                 unlink($thumbnailFile);
             } else {
                 return $file;
@@ -115,6 +123,7 @@ class ThumbnailImage
         return $file;
     }
 
+
     /**
      * Creates and caches the image thumbnail and returns URL from thumbnail file.
      *
@@ -124,7 +133,8 @@ class ThumbnailImage
      * @param string $mode
      * @return string
      */
-    public static function thumbnailFileUrl($filename, $width, $height, $mode = self::THUMBNAIL_OUTBOUND){
+    public static function thumbnailFileUrl($filename, $width, $height, $mode = self::THUMBNAIL_OUTBOUND)
+    {
 
         $filename = FileHelper::normalizePath($filename);
         return self::thumbnailFile($filename, $width, $height, $mode);
@@ -140,16 +150,17 @@ class ThumbnailImage
      * @param array $options options similarly with \yii\helpers\Html::img()
      * @return string
      */
-    public static function thumbnailImg($filename, $width, $height, $mode = self::THUMBNAIL_OUTBOUND, $options = [])
+    public static function thumbnailImg($filename, $width = null, $height = null, $mode = self::THUMBNAIL_OUTBOUND, $options = [])
     {
+
         $filename = FileHelper::normalizePath($filename);
         try {
-            $thumbnailFileUrl =  self::thumbnailFileUrl($filename, $width, $height, $mode);
+            $thumbnailFileUrl = self::thumbnailFileUrl($filename, $width, $height, $mode);
         } catch (\Exception $e) {
             return static::errorHandler($e, $filename);
         }
 
-        return Html::img( $thumbnailFileUrl, $options);
+        return Html::img($thumbnailFileUrl, $options);
     }
 
     /**
