@@ -195,4 +195,13 @@ class ThumbnailImage
         }
     }
 
+    public static function waterMark($filename, $width = null, $height = null, $start=[0,0]){
+
+        $watermarkImage = self::thumbnailFile('watermark.png', $width, $height);
+        $watermarkImage = basename($watermarkImage);
+        $watermarkImage = Yii::getAlias("@cache/$watermarkImage");
+        $image = Image::watermark($filename, $watermarkImage, $start)->save();
+        return $image;
+    }
+
 }
