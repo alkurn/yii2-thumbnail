@@ -79,7 +79,7 @@ class ThumbnailImage
             $filename = FileHelper::normalizePath(self::$uploadsAlias . self::$defaultImage);
         }
 
-        [$_width, $_height] = getimagesize($filename);
+        list($_width, $_height) = getimagesize($filename);
         if (empty($width) && empty($height)) {
             $width = $_width;
             $height = $_height;
@@ -193,6 +193,15 @@ class ThumbnailImage
             Yii::warning("{$error->getCode()}\n{$error->getMessage()}\n{$error->getFile()}");
             return 'Error ' . $error->getCode();
         }
+    }
+
+    public static function waterMark($filename, $width = null, $height = null, $start=[0,0]){
+
+        $watermarkImage = self::thumbnailFile('watermark.png', $width, $height);
+        $watermarkImage = basename($watermarkImage);
+        $watermarkImage = Yii::getAlias("@cache/$watermarkImage");
+        $image = Image::watermark($filename, $watermarkImage, $start)->save();
+        return $image;
     }
 
 }
