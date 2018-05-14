@@ -6,8 +6,8 @@
  */
 
 namespace alkurn\thumbnail;
+use yii\base\BaseObject;
 
-use yii\base\Object;
 
 /**
  * ThumbnailImage global configuration component.
@@ -15,7 +15,7 @@ use yii\base\Object;
  * @author Ganesh
  * @package alkurn\thumbnail
  */
-class Thumbnail extends Object
+class Thumbnail extends BaseObject
 {
     /** @var string $cacheAlias path alias relative with @web where the cache files are kept */
     public $cacheAlias      = 'assets/thumbnails';
