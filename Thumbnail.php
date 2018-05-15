@@ -6,9 +6,7 @@
  */
 
 namespace alkurn\thumbnail;
-
-use yii\base\BaseObject;
-
+use yii\base\BaseObject; 
 
 /**
  * ThumbnailImage global configuration component.
