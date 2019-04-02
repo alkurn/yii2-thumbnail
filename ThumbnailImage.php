@@ -76,7 +76,7 @@ class ThumbnailImage
         $filename = FileHelper::normalizePath(self::$uploadsAlias . $file);
 
         if (!is_file($filename)) {
-            $filename = FileHelper::normalizePath(self::$uploadsAlias . self::$defaultImage);
+            $filename = FileHelper::normalizePath(self::$defaultImage);
         }
 
         list($_width, $_height) = getimagesize($filename);
