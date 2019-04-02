@@ -57,6 +57,15 @@ class ThumbnailImage
         return Image::getImagine()->open(self::thumbnailFile($filename, $width, $height, $mode));
     }
 
+    public static function awsFile($file, $width, $height){
+
+        $thumbnailFileExt = pathinfo($file, PATHINFO_EXTENSION);
+        $realFilePath = pathinfo($file, PATHINFO_DIRNAME);
+        $thumbnailFileName = pathinfo($file, PATHINFO_FILENAME) . '-' . $width . 'x' . $height;
+        $file = $realFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName . '.' . $thumbnailFileExt;
+        return $file;
+    }
+
     /**
      * Creates and caches the image thumbnail and returns full path from thumbnail file.
      *
@@ -69,12 +78,9 @@ class ThumbnailImage
      */
     public static function thumbnailFile($file, $width, $height, $mode = self::THUMBNAIL_OUTBOUND)
     {
-        //'default.png'
         $cachePath = self::$cacheAlias;
         $file = empty($file) ? self::$defaultImage : $file;
-
         $filename = FileHelper::normalizePath(self::$uploadsAlias . $file);
-
         if (!is_file($filename)) {
             $filename = FileHelper::normalizePath(self::$defaultImage);
         }
@@ -89,12 +95,19 @@ class ThumbnailImage
             $height = $width / ($_width / $_height);
         }
 
+        if(isset(Yii::$app->s3)){
+            $thumbFile = self::awsFile($file, $width, $height);
+            $isExist = Yii::$app->s3->doesObjectExist('cache/' . $thumbFile);
+            if($isExist){
+                return self::$imageAlias . $thumbFile;
+            }
+        }
+
         $thumbnailFileExt = pathinfo($filename, PATHINFO_EXTENSION);
         $thumbnailFileName = pathinfo($filename, PATHINFO_FILENAME) . '-' . $width . 'x' . $height;
         $thumbnailFilePath = $cachePath . pathinfo($file, PATHINFO_DIRNAME);
         $thumbnailFile = $thumbnailFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName . '.' . $thumbnailFileExt;
         $realFilePath = pathinfo($file, PATHINFO_DIRNAME);
-
 
         if ($realFilePath == '.' || $realFilePath == '..') {
             $file = $thumbnailFileName . '.' . $thumbnailFileExt;
@@ -120,9 +133,8 @@ class ThumbnailImage
         $image = Image::getImagine()->open($filename);
         $image = $image->thumbnail($box, $mode);
         $image->save($thumbnailFile);
-
-        if (file_exists($thumbnailFile)) {
-            Yii::$app->upload->awsUpload('cache/' . $orgFile, Yii::getAlias("@cache/{$orgFile}"));
+        if (file_exists($thumbnailFile) && isset(Yii::$app->s3)) {
+            Yii::$app->s3->putObject('cache/' . $orgFile, Yii::getAlias("@cache/{$orgFile}"), 'public-read');
         }
 
         return $file;
@@ -157,8 +169,8 @@ class ThumbnailImage
      */
     public static function thumbnailImg($filename, $width = null, $height = null, $mode = self::THUMBNAIL_OUTBOUND, $options = [])
     {
-
         $filename = FileHelper::normalizePath($filename);
+
         try {
             $thumbnailFileUrl = self::thumbnailFileUrl($filename, $width, $height, $mode);
         } catch (\Exception $e) {
@@ -200,7 +212,8 @@ class ThumbnailImage
         }
     }
 
-    public static function waterMark($filename, $width = null, $height = null, $start=[0,0]){
+    public static function waterMark($filename, $width = null, $height = null, $start = [0, 0])
+    {
 
         $watermarkImage = self::thumbnailFile('watermark.png', $width, $height);
         $watermarkImage = basename($watermarkImage);
