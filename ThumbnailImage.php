@@ -136,7 +136,6 @@ class ThumbnailImage
         if (file_exists($thumbnailFile) && isset(Yii::$app->s3)) {
             Yii::$app->s3->putObject('cache/' . $orgFile, Yii::getAlias("@cache/{$orgFile}"), 'public-read');
         }
-
         return $file;
     }
 
