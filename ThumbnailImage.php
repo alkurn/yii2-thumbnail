@@ -89,8 +89,6 @@ class ThumbnailImage
             $height = $width / ($_width / $_height);
         }
 
-
-
         $thumbnailFileExt = pathinfo($filename, PATHINFO_EXTENSION);
         $thumbnailFileName = pathinfo($filename, PATHINFO_FILENAME) . '-' . $width . 'x' . $height;
         $thumbnailFilePath = $cachePath . pathinfo($file, PATHINFO_DIRNAME);
@@ -104,6 +102,7 @@ class ThumbnailImage
             $file = $realFilePath . DIRECTORY_SEPARATOR . $thumbnailFileName . '.' . $thumbnailFileExt;
         }
 
+        $orgFile = $file;
         $file = self::$imageAlias . $file;
         if (file_exists($thumbnailFile)) {
             if (self::$cacheExpire !== 0 && (time() - filemtime($thumbnailFile)) > self::$cacheExpire) {
@@ -121,8 +120,9 @@ class ThumbnailImage
         $image = Image::getImagine()->open($filename);
         $image = $image->thumbnail($box, $mode);
         $image->save($thumbnailFile);
+
         if (file_exists($thumbnailFile)) {
-            Yii::$app->upload->awsUpload('cache/' . $file, Yii::getAlias("@cache/{$file}") );
+            Yii::$app->upload->awsUpload('cache/' . $orgFile, Yii::getAlias("@cache/{$orgFile}"));
         }
 
         return $file;
