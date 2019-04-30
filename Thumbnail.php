@@ -19,6 +19,7 @@ class Thumbnail extends BaseObject
     /** @var string $cacheAlias path alias relative with @web where the cache files are kept */
     public $cacheAlias      = 'assets/thumbnails';
     public $uploadsAlias    = 'assets/thumbnails';
+    public $storageAlias    = 'assets/thumbnails';
     public $imageAlias      = 'assets/thumbnails';
     public $defaultImage    = 'default.png';
 
@@ -27,6 +28,7 @@ class Thumbnail extends BaseObject
 
     public function init(){
         ThumbnailImage::$uploadsAlias   = $this->uploadsAlias;
+        ThumbnailImage::$storageAlias   = $this->storageAlias;
         ThumbnailImage::$cacheAlias     = $this->cacheAlias;
         ThumbnailImage::$imageAlias     = $this->imageAlias;
         ThumbnailImage::$cacheExpire    = $this->cacheExpire;

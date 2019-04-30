@@ -29,6 +29,7 @@ class ThumbnailImage
     public static $cacheAlias = 'assets/thumbnails';
     public static $uploadsAlias = 'assets/thumbnails';
     public static $imageAlias = 'assets/thumbnails';
+    public static $storageAlias = 'assets/thumbnails';
     public static $defaultImage = 'default.png';
 
     /** @var int $cacheExpire */
@@ -57,7 +58,8 @@ class ThumbnailImage
         return Image::getImagine()->open(self::thumbnailFile($filename, $width, $height, $mode));
     }
 
-    public static function awsFile($file, $width, $height){
+    public static function awsFile($file, $width, $height)
+    {
 
         $thumbnailFileExt = pathinfo($file, PATHINFO_EXTENSION);
         $realFilePath = pathinfo($file, PATHINFO_DIRNAME);
@@ -81,8 +83,17 @@ class ThumbnailImage
         $cachePath = self::$cacheAlias;
         $file = empty($file) ? self::$defaultImage : $file;
         $filename = FileHelper::normalizePath(self::$uploadsAlias . $file);
+
         if (!is_file($filename)) {
-            $filename = FileHelper::normalizePath(self::$defaultImage);
+
+            if (isset(Yii::$app->s3)) {
+                $isExist = Yii::$app->s3->doesObjectExist('storage/' . $file);
+                $filename = ($isExist) ?
+                    self::$storageAlias . $file :
+                    FileHelper::normalizePath(self::$defaultImage);
+            } else {
+                $filename = FileHelper::normalizePath(self::$defaultImage);
+            }
         }
 
         list($_width, $_height) = getimagesize($filename);
@@ -95,10 +106,10 @@ class ThumbnailImage
             $height = $width / ($_width / $_height);
         }
 
-        if(isset(Yii::$app->s3)){
+        if (isset(Yii::$app->s3)) {
             $thumbFile = self::awsFile($file, $width, $height);
             $isExist = Yii::$app->s3->doesObjectExist('cache/' . $thumbFile);
-            if($isExist){
+            if ($isExist) {
                 return self::$imageAlias . $thumbFile;
             }
         }
@@ -151,7 +162,6 @@ class ThumbnailImage
      */
     public static function thumbnailFileUrl($filename, $width, $height, $mode = self::THUMBNAIL_OUTBOUND)
     {
-
         $filename = FileHelper::normalizePath($filename);
         return self::thumbnailFile($filename, $width, $height, $mode);
     }
