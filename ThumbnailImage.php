@@ -85,15 +85,15 @@ class ThumbnailImage
         $filename = FileHelper::normalizePath(self::$uploadsAlias . $file);
 
         if (!is_file($filename)) {
-
-            if (isset(Yii::$app->s3)) {
+            /*if (isset(Yii::$app->s3)) {
                 $isExist = Yii::$app->s3->doesObjectExist('storage/' . $file);
                 $filename = ($isExist) ?
                     self::$storageAlias . $file :
                     FileHelper::normalizePath(self::$defaultImage);
             } else {
                 $filename = FileHelper::normalizePath(self::$defaultImage);
-            }
+            }*/
+            $filename = FileHelper::normalizePath(self::$defaultImage);
         }
 
         list($_width, $_height) = getimagesize($filename);
