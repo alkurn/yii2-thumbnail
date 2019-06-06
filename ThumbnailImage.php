@@ -143,7 +143,7 @@ class ThumbnailImage
         $box = new Box($width, $height);
         $image = Image::getImagine()->open($filename);
         $image = $image->thumbnail($box, $mode);
-        $image->save($thumbnailFile);
+        $image->save($thumbnailFile, ['quality' => 90]);
         if (file_exists($thumbnailFile) && isset(Yii::$app->s3)) {
             Yii::$app->s3->putObject('cache/' . $orgFile, Yii::getAlias("@cache/{$orgFile}"), 'public-read');
         }
@@ -179,7 +179,6 @@ class ThumbnailImage
     public static function thumbnailImg($filename, $width = null, $height = null, $mode = self::THUMBNAIL_OUTBOUND, $options = [])
     {
         $filename = FileHelper::normalizePath($filename);
-
         try {
             $thumbnailFileUrl = self::thumbnailFileUrl($filename, $width, $height, $mode);
         } catch (\Exception $e) {
