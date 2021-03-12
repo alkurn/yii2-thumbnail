@@ -30,7 +30,7 @@ class ThumbnailImage
     public static $defaultImage = 'default.png';
 
     /** @var int $cacheExpire */
-    public static $cacheExpire = 0;
+    public static $cacheExpire = 3600;
 
     /**
      * Creates and caches the image thumbnail and returns ImageInterface.
