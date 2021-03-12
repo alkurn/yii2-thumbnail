@@ -30,7 +30,7 @@ class ThumbnailImage
     public static $defaultImage = 'default.png';
 
     /** @var int $cacheExpire */
-    public static $cacheExpire = 3600;
+    public static $cacheExpire = 0;
 
     /**
      * Creates and caches the image thumbnail and returns ImageInterface.
@@ -94,12 +94,14 @@ class ThumbnailImage
             $height = $width / ($_width / $_height);
         }*/
 
+        /*
         $ratio = $_width / $_height;
         if ($width / $height > $ratio) {
-            $width = $height * $ratio;
+            $width = round($height * $ratio);
         } else {
-            $height = $width / $ratio;
+            $height = round($width / $ratio);
         }
+        */
 
         if (isset(Yii::$app->s3)) {
             $thumbFile = self::awsFile($file, $width, $height);
