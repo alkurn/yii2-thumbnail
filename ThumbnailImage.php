@@ -25,7 +25,7 @@ class ThumbnailImage
     const THUMBNAIL_OUTBOUND = ManipulatorInterface::THUMBNAIL_OUTBOUND;
     const THUMBNAIL_INSET = ManipulatorInterface::THUMBNAIL_INSET;
     const THUMBNAIL_INSET_BOX = 'inset_box';
-    const IMAGE_QUALITY = 50;
+    const IMAGE_QUALITY = 90;
     const MKDIR_MODE = 0755;
 
 
