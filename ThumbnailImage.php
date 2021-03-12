@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 /**
  * @link https://gitlab.com/ganesh.alkurn/alkurn/yii2-thumbnail
@@ -24,6 +24,10 @@ class ThumbnailImage
 {
     const THUMBNAIL_OUTBOUND = ManipulatorInterface::THUMBNAIL_OUTBOUND;
     const THUMBNAIL_INSET = ManipulatorInterface::THUMBNAIL_INSET;
+    const THUMBNAIL_INSET_BOX = 'inset_box';
+    const IMAGE_QUALITY = 50;
+    const MKDIR_MODE = 0755;
+
 
     /** @var string $cacheAlias path alias relative with @web where the cache files are kept */
     public static $cacheAlias = 'assets/thumbnails';
@@ -53,9 +57,9 @@ class ThumbnailImage
      * the exact $width and $height specified
      * @return \Imagine\Image\ImageInterface
      */
-    public static function thumbnail($filename, $width, $height, $mode = self::THUMBNAIL_OUTBOUND)
+    public static function thumbnail($filename, $width, $height, $mode = self::THUMBNAIL_OUTBOUND, $quality = null)
     {
-        return Image::getImagine()->open(self::thumbnailFile($filename, $width, $height, $mode));
+        return Image::getImagine()->open(self::thumbnailFile($filename, $width, $height, $mode, $quality));
     }
 
     public static function awsFile($file, $width, $height)
@@ -78,21 +82,12 @@ class ThumbnailImage
      * @return string
      * @throws FileNotFoundException
      */
-    public static function thumbnailFile($file, $width, $height, $mode = self::THUMBNAIL_OUTBOUND)
+    public static function thumbnailFile($file, $width, $height, $mode = self::THUMBNAIL_OUTBOUND, $quality = null)
     {
         $cachePath = self::$cacheAlias;
         $file = empty($file) ? self::$defaultImage : $file;
         $filename = FileHelper::normalizePath(self::$uploadsAlias . $file);
-
         if (!is_file($filename)) {
-            /*if (isset(Yii::$app->s3)) {
-                $isExist = Yii::$app->s3->doesObjectExist('storage/' . $file);
-                $filename = ($isExist) ?
-                    self::$storageAlias . $file :
-                    FileHelper::normalizePath(self::$defaultImage);
-            } else {
-                $filename = FileHelper::normalizePath(self::$defaultImage);
-            }*/
             $filename = FileHelper::normalizePath(self::$defaultImage);
         }
 
@@ -100,11 +95,11 @@ class ThumbnailImage
         if (empty($width) && empty($height)) {
             $width = $_width;
             $height = $_height;
-        } elseif (empty($width)) {
+        } /*elseif (empty($width)) {
             $width = ($height * ($_width / $_height));
         } elseif (empty($height)) {
             $height = $width / ($_width / $_height);
-        }
+        }*/
 
         if (isset(Yii::$app->s3)) {
             $thumbFile = self::awsFile($file, $width, $height);
@@ -140,10 +135,18 @@ class ThumbnailImage
             mkdir($thumbnailFilePath, 0755, true);
         }
 
-        $box = new Box($width, $height);
         $image = Image::getImagine()->open($filename);
-        $image = $image->thumbnail($box, $mode);
-        $image->save($thumbnailFile, ['quality' => 90]);
+        if ($mode === self::THUMBNAIL_INSET_BOX) {
+            $image = $image->thumbnail(new Box($width, $height), ManipulatorInterface::THUMBNAIL_INSET);
+        } else {
+            $image = Image::thumbnail($image, $width, $height, $mode);
+        }
+
+        //$image = $image->thumbnail(new Box($width, $height), $mode);
+        //$image->save($thumbnailFile, ['quality' => self::IMAGE_QUALITY]);
+
+        $options = ['quality' => $quality === null ? self::IMAGE_QUALITY : $quality];
+        $image->save($thumbnailFile, $options);
         if (file_exists($thumbnailFile) && isset(Yii::$app->s3)) {
             Yii::$app->s3->putObject('cache/' . $orgFile, Yii::getAlias("@cache/{$orgFile}"), 'public-read');
         }
@@ -160,10 +163,10 @@ class ThumbnailImage
      * @param string $mode
      * @return string
      */
-    public static function thumbnailFileUrl($filename, $width, $height, $mode = self::THUMBNAIL_OUTBOUND)
+    public static function thumbnailFileUrl($filename, $width, $height, $mode = self::THUMBNAIL_OUTBOUND, $quality = null)
     {
         $filename = FileHelper::normalizePath($filename);
-        return self::thumbnailFile($filename, $width, $height, $mode);
+        return self::thumbnailFile($filename, $width, $height, $mode, $quality);
     }
 
     /**
@@ -176,11 +179,11 @@ class ThumbnailImage
      * @param array $options options similarly with \yii\helpers\Html::img()
      * @return string
      */
-    public static function thumbnailImg($filename, $width = null, $height = null, $mode = self::THUMBNAIL_OUTBOUND, $options = [])
+    public static function thumbnailImg($filename, $width = null, $height = null, $mode = self::THUMBNAIL_OUTBOUND, $options = [], $quality = null)
     {
         $filename = FileHelper::normalizePath($filename);
         try {
-            $thumbnailFileUrl = self::thumbnailFileUrl($filename, $width, $height, $mode);
+            $thumbnailFileUrl = self::thumbnailFileUrl($filename, $width, $height, $mode, $quality);
         } catch (\Exception $e) {
             return static::errorHandler($e, $filename);
         }
@@ -222,7 +225,6 @@ class ThumbnailImage
 
     public static function waterMark($filename, $width = null, $height = null, $start = [0, 0])
     {
-
         $watermarkImage = self::thumbnailFile('watermark.png', $width, $height);
         $watermarkImage = basename($watermarkImage);
         $watermarkImage = Yii::getAlias("@cache/$watermarkImage");
