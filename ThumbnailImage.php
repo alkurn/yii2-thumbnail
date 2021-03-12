@@ -21,7 +21,6 @@ class ThumbnailImage
     const IMAGE_QUALITY = 90;
     const MKDIR_MODE = 0755;
 
-
     /** @var string $cacheAlias path alias relative with @web where the cache files are kept */
     public static $cacheAlias = 'assets/thumbnails';
     public static $uploadsAlias = 'assets/thumbnails';
@@ -221,8 +220,6 @@ class ThumbnailImage
         $watermarkImage = self::thumbnailFile('watermark.png', $width, $height);
         $watermarkImage = basename($watermarkImage);
         $watermarkImage = Yii::getAlias("@cache/$watermarkImage");
-        $image = Image::watermark($filename, $watermarkImage, $start)->save();
-        return $image;
+        return Image::watermark($filename, $watermarkImage, $start)->save();
     }
-
 }
