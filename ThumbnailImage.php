@@ -1,4 +1,4 @@
- <?php
+<?php
 namespace alkurn\thumbnail;
 
 use Yii;
