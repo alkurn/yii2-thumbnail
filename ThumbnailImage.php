@@ -1,4 +1,5 @@
 <?php
+
 namespace alkurn\thumbnail;
 
 use Yii;
@@ -92,6 +93,13 @@ class ThumbnailImage
         } elseif (empty($height)) {
             $height = $width / ($_width / $_height);
         }*/
+
+        $ratio = $_width / $_height;
+        if ($width / $height > $ratio) {
+            $width = $height * $ratio;
+        } else {
+            $height = $width / $ratio;
+        }
 
         if (isset(Yii::$app->s3)) {
             $thumbFile = self::awsFile($file, $width, $height);
