@@ -84,7 +84,7 @@ class ThumbnailImage
             $filename = FileHelper::normalizePath(self::$defaultImage);
         }
 
-        list($_width, $_height) = getimagesize($filename);
+        list($_width, $_height) = @getimagesize($filename);
         if (empty($width) && empty($height)) {
             $width = $_width;
             $height = $_height;
